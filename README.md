@@ -2,7 +2,7 @@
 
 项目基于yolov5，检测简谱中的乐符并生成相应的键值映射，使用自动演奏程序可以在原神中自动演奏曲子。
 
-![image-20230225163713806](../../../文件/笔记本/image/image-20230225163713806.png)
+![image-20230225163713806](readme/image-20230225163713806.png)
 <br>
 # 使用
 
@@ -12,7 +12,7 @@
 
 下载训练好的权重文件https://drive.google.com/drive/folders/12FSuGoN79dR93I2TFhBkwirfsyAfCohS?usp=sharing，放到models下的weights文件夹下（下载.pth文件就行）
 
-![image-20230225193149835](../../../文件/笔记本/image/image-20230225193149835.png)
+![image-20230225193149835](readme/image-20230225193149835.png)
 
 使用命令生成按键映射：
 
@@ -24,7 +24,7 @@ python full_detect.py --source datasets/千本樱.png --ms-wgt models/weights/ms
 
 *键值映射结果在runs/detect/exp?/下：*
 
-![image-20230225194818744](../../../文件/笔记本/image/image-20230225194818744.png)
+![image-20230225194818744](readme/image-20230225194818744.png)
 
 ### 2.自动演奏
 
