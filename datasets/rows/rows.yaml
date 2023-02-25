@@ -1,0 +1,16 @@
+path: ./datasets/rows  # dataset root dir
+train: train/images  # train images (relative to 'path') 128 images
+val: val/images  # val images (relative to 'path') 128 images
+test: test/images # test images (optional)
+
+# Classes
+nc: 70  # number of classes
+names: ['_0x', '_0x2', '_0x4',
+        '_1x', '_1u', '_1n', '_1u2', '_1n2', '_1x2', '_1u4', '_1n4', '_1x4',
+        '_2x', '_2u', '_2n', '_2u2', '_2n2', '_2x2', '_2x4', '_2u4', '_2n4',
+        '_3x', '_3u', '_3n', '_3u2', '_3n2', '_3x2', '_3x4', '_3u4', '_3n4',
+        '_4x', '_4u', '_4n', '_4u2', '_4n2', '_4x2', '_4x4', '_4u4', '_4n4',
+        '_5x', '_5u', '_5n', '_5u2', '_5n2', '_5x2', '_5x4', '_5u4', '_5n4',
+        '_6x', '_6u', '_6n', '_6u2', '_6n2', '_6x2', '_6x4', '_6u4', '_6n4',
+        '_7x', '_7u', '_7n', '_7u2', '_7n2', '_7x2', '_7x4', '_7u4', '_7n4',
+        '_-', '_hx', '_hx2', '_l']  # class names
