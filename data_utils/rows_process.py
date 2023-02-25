@@ -35,37 +35,23 @@ def anno2boxes(anno_path):
     return labels
 
 
-<<<<<<< HEAD
-def crop_line_detect(img_dir: str, txt_dir: str, save_dir: str):
-    """
-    function:
-        crop lines from music score preds
-    :param img_dir:
-=======
 def crop_line_detect(img_path: str, txt_dir: str, save_dir: str):
     """
     function:
         crop lines from music score preds
     :param img_path:
->>>>>>> 01551db (first commit)
         source img dir
     :param txt_dir:
         preds dir
     :param save_dir:
     :return:
     """
-<<<<<<< HEAD
-    img_dir = Path(img_dir)
-    save_dir = Path(save_dir)
-    ms_img_paths = glob.glob(str(img_dir / '**' / '*.*'), recursive=True)
-=======
     img_path = Path(img_path)
     save_dir = Path(save_dir)
     if img_path.is_file():
         ms_img_paths = [str(img_path)]
     else:
         ms_img_paths = glob.glob(str(img_path / '**' / '*.*'), recursive=True)
->>>>>>> 01551db (first commit)
     # 确保标签文件夹和img文件夹对齐
     ms_img_paths = sorted(x for x in ms_img_paths
                           if x.split('.')[-1].lower() in ['png', 'jpg'])

@@ -7,10 +7,7 @@
 
 from __future__ import print_function
 from pathlib import Path
-<<<<<<< HEAD
-=======
 from argparse import ArgumentParser
->>>>>>> 01551db (first commit)
 import win32con
 import win32api
 import time
@@ -139,12 +136,7 @@ def is_admin():
     except:
         return False
 
-
-<<<<<<< HEAD
-def play(txt=None):
-=======
 def play(speed=1.25, txt=None):
->>>>>>> 01551db (first commit)
     if Path(txt).exists():
         with open(txt, 'r') as f:
             txt = f.readlines()[0]
@@ -153,24 +145,17 @@ def play(speed=1.25, txt=None):
         # 将要运行的代码加到这里hd
 
         time.sleep(2)
-<<<<<<< HEAD
         play_music(txt, 1.25)
-=======
         play_music(txt, speed)
->>>>>>> 01551db (first commit)
     else:
         print("No permission!")
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     txt = './runs/detect/exp/今生我要把你陪'
-    play(txt)
-=======
     parser = ArgumentParser()
-    parser.add_argument('--txt', type=str, default='runs/detect/exp/千本樱')
+    parser.add_argument('--txt', type=str, default='runs/detect/exp2/两地曲')
     parser.add_argument('--speed', type=float, default=1.25)
     args = parser.parse_args()
     play(args.speed, args.txt)
->>>>>>> 01551db (first commit)

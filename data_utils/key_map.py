@@ -116,7 +116,7 @@ def xlabel2keys(xlb_src, save_dir, strain_dist=None):
             ms_dist[song_name] = [lpath]
     # print(ms_dist)
     for name, lines in ms_dist.items():
-        strain = strain_dist[name] if strain_dist is not None else 'C'
+        strain = strain_dist[name] if strain_dist is not None and name in strain_dist.keys() else 'C'
         kkeys = ''
         for line in lines:
             with open(line, 'r') as f:
