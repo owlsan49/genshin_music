@@ -51,24 +51,34 @@ def label_parse(labels: list):
     return keys
 
 
-def reduce_rep(notes: list, thr=5):
+def reduce_rep(notes: list, thr=10, xp=0, confp=-1, mark='##'):
     """
     function:
         reduce anchors which are too closed
     :param notes:
         list: [x or y, label_with_conf] sorted
     :param thr:
+    :param xp & confp:
+        x position and conf position
     :return:
     """
+
     if len(notes) >= 1:
         i = 0
         j = 1
         while i < len(notes) and j < len(notes):
             try:
-                if abs(float(notes[i][0]) - float(notes[j][0])) < thr:
-                    idx = i if notes[i] < notes[j] else j
-                    notes[idx] = '##'
-                    i += 1 if idx == i else 0
+                if abs(float(notes[i][xp]) - float(notes[j][xp])) < thr:
+                    if isinstance(notes[i][confp], str):
+                        idx = i if float(notes[i][confp].split()[-1]) < float(notes[j][confp].split()[-1]) else j
+                    elif isinstance(notes[i][confp], float):
+                        idx = i if notes[i][confp] < notes[j][confp] else j
+                    else:
+                        raise Exception(f'Unacceptable type {type(notes[i][confp])}!')
+                    # print(notes[i], notes[j])
+                    notes[idx] = mark
+                    if idx == i:
+                        i = j
                     j += 1
                 else:
                     i = j
@@ -102,9 +112,20 @@ def strain_change(notes: list, strain='C'):
 
 
 def xlabel2keys(xlb_src, save_dir, strain_dist=None):
+    """
+
+    :param xlb_src:
+        含x和label的txt预测文件
+    :param save_dir:
+    :param strain_dist:
+        调号
+    :return:
+    """
     xlb_src = Path(xlb_src)
     save_dir = Path(save_dir)
     lines_path = glob.glob(str(xlb_src / '*.txt'), recursive=True)
+    lines_path = [itm for itm in lines_path if itm.split('_')[-2] == 'lines']
+
     ms_dist = {}
     # print(lines_path)
     # 把同一首歌对应的每行归拢到一个list
@@ -114,8 +135,12 @@ def xlabel2keys(xlb_src, save_dir, strain_dist=None):
             ms_dist[song_name].append(lpath)
         else:
             ms_dist[song_name] = [lpath]
+
+    ord = lambda x: int(x.split('.')[-2].split('_')[-1])
+    ms_dist = {k: sorted(v, key=ord) for k, v in ms_dist.items()}
     # print(ms_dist)
     for name, lines in ms_dist.items():
+        # print(name, strain_dist.keys())
         strain = strain_dist[name] if strain_dist is not None and name in strain_dist.keys() else 'C'
         kkeys = ''
         for line in lines:
@@ -165,11 +190,11 @@ if __name__ == '__main__':
     # dest = '../datasets/rows/val/map_label'
     # labelme2xclass(src, dest)
 
-    source = '../datasets/rows/val/map_label'
-    save_dir = '../datasets/rows/val'
-    xlabel2keys(source, save_dir, strain_dist={'yosabi1': 'G', '千本樱': 'C'})
+    # source = '../runs/detect/exp2/part'
+    # save_dir = '../runs/detect/exp3/part'
+    # xlabel2keys(source, save_dir, strain_dist={'yosabi1': 'G', '千本樱': 'C'})
 
-    # source = '../runs/detect/exp2/rows'
-    # save_dir = '../runs/detect/exp2'
-    # xlabel2keys(source, save_dir)
+    source = '../runs/detect/exp2/rows'
+    save_dir = '../runs/detect/exp'
+    xlabel2keys(source, save_dir)
 

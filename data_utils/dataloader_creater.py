@@ -7,7 +7,7 @@
 
 from utils.augmentations import Albumentations, augment_hsv, copy_paste, letterbox, mixup, random_perspective
 from utils.general import (DATASETS_DIR, LOGGER, NUM_THREADS, check_dataset,
-                           check_requirements, check_yaml, clean_str, cv2,
+                           check_img_size, check_yaml, clean_str, cv2,
                            is_colab, is_kaggle, segments2boxes, xyn2xy, xywh2xyxy,
                            xywhn2xyxy, xyxy2xywhn)
 # from utils.torch_utils import torch_distributed_zero_first
@@ -17,6 +17,7 @@ from tqdm import tqdm
 from itertools import repeat
 from multiprocessing.pool import Pool, ThreadPool
 from pathlib import Path
+from data_utils.resize import img_resize
 
 import time
 import numpy as np
@@ -63,7 +64,9 @@ class MscDataset(Dataset):
         self.img_size = img_size
 
         self.mosaicBorder = [-img_size // 2, -img_size // 2]
-
+        # print(len(self.label_paths))
+        # print(self.label_paths)
+        # exit(0)
         # Check cache
         cache_path = Path(self.label_paths[0]).parent.with_suffix('.cache')
         try:
@@ -82,6 +85,8 @@ class MscDataset(Dataset):
         # Read cache
         [cache.pop(k) for k in ('hash', 'version', 'msgs')]  # remove items
         labels, shapes, self.segments = zip(*cache.values())
+        # print(shapes)
+        # exit(0)
         self.labels = list(labels)
         self.shapes = np.array(shapes, dtype=np.float64)
         n = len(shapes)  # number of images
@@ -133,17 +138,20 @@ class MscDataset(Dataset):
 
     def __getitem__(self, index):
         # index += 1
-        index = self.indices[index]
+        try:
+            index = self.indices[index]
+        except Exception:
+            print(index)
+            print(self.indices)
+            exit(0)
         hyp = self.hyp
         mosaic = self.mosaic and random.random() < hyp['mosaic']
 
         if mosaic:
-            # print('11111111111111111111111')
             # Load mosaic
             img, labels = self.load_mosaic(index)
             shapes = None
-            # cv2.imshow('1', img)
-            # cv2.waitKey(0)
+
             # MixUp augmentation
             if np.random.rand() < hyp['mixup']:
                 img, labels = self.mixup(img, labels)
@@ -171,6 +179,7 @@ class MscDataset(Dataset):
                                                  shear=hyp['shear'],
                                                  perspective=hyp['perspective'])
 
+        # print(img.shape)
         nl = len(labels)
         if nl:
             labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0], clip=True, eps=1E-3)
@@ -360,7 +369,7 @@ class MscDataset(Dataset):
             im.verify()  # PIL verify
             shape = self.exif_size(im)  # image size
             assert (shape[0] > 9) & (shape[1] > 9), f'image size {shape} <10 pixels'
-            assert im.format.lower() in ['png', 'jpg', 'jpeg'], f'invalid image format {im.format}'
+            assert im.format.lower() in ['png', 'jpg', 'jpeg', 'webp'], f'invalid image format {im.format}'
 
             if im.format.lower() in ('jpg', 'jpeg'):
                 with open(im_file, 'rb') as f:
@@ -423,7 +432,7 @@ class LoadImages(Dataset):
     function:
         Load Images from file/dir for test
     """
-    def __init__(self, path: str, img_size, stride=32, auto=True):
+    def __init__(self, path: str, img_size, stride=32, auto=True, mode='ms'):
         super(LoadImages, self).__init__()
         path = Path(path)
         p = str(path)
@@ -432,6 +441,8 @@ class LoadImages(Dataset):
             files = sorted(glob.glob(os.path.join(p, '*.*')))
         elif os.path.isfile(p):
             files = [p]
+        else:
+            raise Exception('No such file!!')
 
         # filtrate images
         self.files = [x for x in files if x.split('.')[-1].lower() in ['jpg', 'png']]
@@ -439,6 +450,7 @@ class LoadImages(Dataset):
         self.img_size = img_size
         self.stride = stride
         self.auto = auto
+        self.mode = mode
 
     def __getitem__(self, idx):
         img_path = self.files[idx]
@@ -446,8 +458,22 @@ class LoadImages(Dataset):
         assert img0 is not None, f'Image Not Found {img_path}'
 
         # Padded resize
-        img = letterbox(img0, self.img_size, stride=self.stride, auto=self.auto)[0]
-
+        # if self.mode == 'ms':
+        #     img = img_resize(img_path)
+        #     if img_path.split('.')[-1] == 'png':
+        #         img = img.convert("RGB")
+        #     img = np.array(img)
+        #
+        #     img = letterbox(img, self.img_size, auto=False, scaleup=False)[0]
+        # else:
+        #     # print('AAAAAAAAA', img0.shape)
+        #     rt = 704 / img0.shape[1]
+        #     img = img_resize(img_path, unisize=(704, round(rt * img0.shape[0])))
+        #     if img_path.split('.')[-1] == 'png':
+        #         img = img.convert("RGB")
+        #     img = np.array(img)
+        #     img = letterbox(img, self.img_size, auto=False, scaleup=False)[0]
+        img = letterbox(img0, self.img_size, auto=False, scaleup=False)[0]
         # Convert
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
         img = np.ascontiguousarray(img)

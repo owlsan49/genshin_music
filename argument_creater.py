@@ -61,7 +61,7 @@ class ArgCreater:
 
         # save process
         self.parser.add_argument('--project', default=ROOT / 'runs/train', help='save to project/name')
-        self.parser.add_argument('--name', default='exp', help='save to project/name')
+        self.parser.add_argument('--name', default='exp2', help='save to project/name')
         self.parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
 
         self.parser.add_argument('--quad', action='store_true', help='quad dataloader')
@@ -98,7 +98,7 @@ class TestArgCreater:
                                  help='dataset.yaml path')
         self.parser.add_argument('--row-data', type=str, default=ROOT / 'datasets/rows/rows.yaml',
                                  help='dataset.yaml path')
-        self.parser.add_argument('--ms-sz', type=int, default=640,
+        self.parser.add_argument('--ms-sz', type=int, default=700,
                                  help='train, val image size (pixels)')
         self.parser.add_argument('--row-sz', type=int, default=660,
                                  help='row image size (pixels)')
@@ -106,9 +106,9 @@ class TestArgCreater:
 
         # model
         self.parser.add_argument('--cfg', type=str, default='./models/yolov5x.yaml', help='model.yaml path')
-        self.parser.add_argument('--ms-wgt', type=str, default=ROOT / 'runs/train/ms/exp/weights/best.pth',
+        self.parser.add_argument('--ms-wgt', type=str, default=ROOT / 'runs/train/ms/exp2/weights/best.pth',
                                  help='initial weights path')
-        self.parser.add_argument('--row-wgt', type=str, default=ROOT / 'runs/train/rows/exp/weights/best.pth',
+        self.parser.add_argument('--row-wgt', type=str, default=ROOT / 'runs/train/rows/exp2/weights/best.pth',
                                  help='initial weights path')
 
         # detect hyp

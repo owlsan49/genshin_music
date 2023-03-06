@@ -22,7 +22,8 @@ def notes_detect():
     row_tester.test()
     xlabel2keys(row_tester.gmp_logger.save_row,
                 row_tester.gmp_logger.save_dir,
-                strain_dist={'yosabi1': 'E'})
+                strain_dist={'yosabi1': 'G', 'mnzl2': 'D', 'songbie': 'E',
+                             'mnzl': 'E'})
 
 
 if __name__ == '__main__':

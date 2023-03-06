@@ -4,6 +4,7 @@
 # 完成时间: 2023-xx-xx
 # 参考: yolov5
 # base: None
+import numpy as np
 
 from utils.general import (LOGGER, non_max_suppression, scale_coords,
                            check_img_size)
@@ -15,6 +16,7 @@ from data_utils.dataloader_creater import LoadImages, Path
 import yaml
 import torch
 import copy
+import cv2
 
 
 class MSTester:
@@ -54,6 +56,13 @@ class MSTester:
             if len(im.shape) == 3:
                 im = im.unsqueeze(0)
 
+            # im = im.to('cpu').squeeze().numpy()
+            # im = im.transpose(1, 2, 0)
+            # print(im.shape)
+            # cv2.imshow('1', im)
+            # cv2.waitKey(0)
+            # exit(0)
+
             # Inference
             # print(im.shape)
             preds, _ = self.yolov5(im)
@@ -64,20 +73,42 @@ class MSTester:
             for i, det in enumerate(preds):
 
                 p, im0 = Path(path), im0s.numpy().copy()
+                # print(im0.shape, type(im0), im0[:10, :10])
+                # im0 = (im.cpu().numpy()[0].copy().transpose(1, 2, 0) * 1).round()
+                #
+                # im0 = np.ascontiguousarray(im0)
+                # print(im0.shape, type(im0), im0[:10, :10])
+
                 annotator = Annotator(im0, line_width=2, font_size=10, example=str(self.class_names))
                 if len(det):
                     # Rescale boxes from img_size to im0 size
                     # det--> [ boxes, confidence, classes]
-                    det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
 
+                    # print('aaaaaaa', det[:, :4])
+                    # print(im.shape[2:])
+                    # gain = min(im.shape[2:][0] / im0.shape[0], im.shape[2:][1] / im0.shape[1])
+                    # ratio_pad = [[gain], [0, 0]]
+                    det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
+                    # det[:, :4] = scale_coords(im.shape, det[:, :4], im.shape).round()
+                    # print(im0.shape)
+                    # exit(0)
                     for ti, (*xyxy, conf, cls) in enumerate(det):
+                        # print('dddddd', xyxy)
                         c = int(cls)  # turn tensor float item into int
                         label = f'{self.class_names[c]} {conf:.2f}'
 
                         pred_list.append([f'{c} {conf:.2f}', det[ti, :4].tolist()])
-                        annotator.box_label(xyxy, label, color=colors(c, True))
+                        # print(xyxy)
+                        annotator.box_label(xyxy, color=colors(c, True))
+                        # annotator.box_label([10, 10, 554, 279], color=(128, 128, 128))
 
                 im0 = annotator.result()
+
+                # print(im0.shape)
+                # cv2.imshow('1', im0)
+                # cv2.waitKey(0)
+                # exit(0)
+
                 self.gmp_logger.save_img(im0, p.name, suffix='ms')
                 self.gmp_logger.save_preds(p.name, pred_list)
 

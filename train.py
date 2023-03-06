@@ -6,7 +6,8 @@
 # base: None
 
 from utils.general import (LOGGER, non_max_suppression, scale_coords, xywh2xyxy,
-                           intersect_dicts, colorstr, one_cycle, increment_path, check_img_size)
+                           intersect_dicts, colorstr, one_cycle, increment_path,
+                           check_img_size)
 from utils.metrics import ap_per_class, box_iou, fitness
 from utils.loss import ComputeLoss
 from utils.torch_utils import ModelEMA
@@ -30,6 +31,7 @@ import torch.nn as nn
 import torch
 import yaml
 import os
+import cv2
 
 
 class Trainer:
@@ -93,7 +95,7 @@ class Trainer:
 
         # Image size
         gs = 32
-        self.imgsz = self.check_img_size(gs, floor=gs * 2)  # verify imgsz is gs-multiple
+        self.imgsz = check_img_size(self.imgsz, gs, floor=gs * 2)  # verify imgsz is gs-multiple
         self.train_loader, train_set = create_dataloader(self.train_path,
                                                          self.imgsz,
                                                          self.batch_size,
@@ -108,24 +110,13 @@ class Trainer:
                                                hyp=hyps,
                                                stride=int(gs),
                                                pad=0.5,
-                                               rect=True,
+                                               rect=False,
                                                prefix='val ',
                                                shuffle=False)
         # this process is important to change detect layer
         if not self.args.noautoanchor:
             check_anchors(train_set, model=self.yolov5, thr=hyps['anchor_t'], imgsz=self.imgsz)
         self.yolov5.half().float()
-
-    def check_img_size(self, s=32, floor=0):
-        # Verify image size is a multiple of stride s in each dimension
-        if isinstance(self.imgsz, int):  # integer i.e. img_size=640
-            new_size = max(self.make_divisible(self.imgsz, int(s)), floor)
-        else:  # list i.e. img_size=[640, 480]
-            imgsz = list(self.imgsz)  # convert to list if tuple
-            new_size = [max(self.make_divisible(x, int(s)), floor) for x in imgsz]
-        if new_size != self.imgsz:
-            LOGGER.warning(f'WARNING: --img-size {self.imgsz} must be multiple of max stride {s}, updating to {new_size}')
-        return new_size
 
     def make_divisible(self, x, divisor):
         # Returns nearest x divisible by divisor
@@ -153,6 +144,7 @@ class Trainer:
             for i, (imgs, targets, paths, _) in pbar:
                 num_itg += i
                 imgs = imgs.to(self.device, non_blocking=True).float() / 255.
+                # print(imgs.shape)
                 targets = targets.to(self.device)
 
                 # Warmup
@@ -171,6 +163,13 @@ class Trainer:
 
                 # predict and compute loss
                 # automatic mixed precision to speed up prop
+                # if i == 2:
+                #     imgs = imgs[0].to('cpu').squeeze().numpy()
+                #     imgs = imgs.transpose(1, 2, 0)
+                #     print(imgs.shape)
+                #     cv2.imshow('1', imgs)
+                #     cv2.waitKey(0)
+                #     exit(0)
                 with torch.cuda.amp.autocast():
                     preds = self.yolov5(imgs)
                     loss, loss_items = self.loss_func(preds, targets)
@@ -230,6 +229,15 @@ class Trainer:
         dt, p, r, f1, mp, mr, map50, map = [0.0, 0.0, 0.0], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
         for eva_i, (im, targets, paths, shapes) in pbar:
             im = im.to(self.device, non_blocking=True).float() / 255.
+
+            # if eva_i == 1:
+            #     im = im[0].to('cpu').squeeze().numpy()
+            #     im = im.transpose(1, 2, 0)
+            #     print(im.shape)
+            #     cv2.imshow('1', im)
+            #     cv2.waitKey(0)
+            #     exit(0)
+
             targets = targets.to(self.device, non_blocking=True)
             nb, _, height, width = im.shape  # batch size, channels, height, width
 
@@ -270,7 +278,11 @@ class Trainer:
                 stats.append((correct, pred[:, 4], pred[:, 5], labels[:, 0]))  # (correct, conf, pcls, tcls)
 
             # Plot images
-            if eva_i < 3:
+            if eva_i < 5:
+                # print(len(out))
+                # for itm in out:
+                #     print(itm.shape)
+                # exit(0)
                 self.gmp_logger.plot_val_img(im, targets, out, paths, eva_i, names)  # labels
         pbar.close()
 

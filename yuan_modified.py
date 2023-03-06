@@ -136,6 +136,7 @@ def is_admin():
     except:
         return False
 
+
 def play(speed=1.25, txt=None):
     if Path(txt).exists():
         with open(txt, 'r') as f:
@@ -153,9 +154,8 @@ def play(speed=1.25, txt=None):
 
 
 if __name__ == "__main__":
-    txt = './runs/detect/exp/今生我要把你陪'
     parser = ArgumentParser()
-    parser.add_argument('--txt', type=str, default='runs/detect/exp2/两地曲')
+    parser.add_argument('--txt', type=str, default='runs/detect/exp3/千本樱')
     parser.add_argument('--speed', type=float, default=1.25)
     args = parser.parse_args()
     play(args.speed, args.txt)

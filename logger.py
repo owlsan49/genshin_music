@@ -7,7 +7,13 @@
 
 
 from pathlib import Path
+
+import numpy as np
+
 from utils.plots import output_to_target, plot_images
+from data_utils.key_map import reduce_rep
+
+import warnings
 import os
 import torch
 import datetime
@@ -25,6 +31,7 @@ class Logger:
     """
     def __init__(self, args, mode='train'):
         # create full save path
+        self.args = args
         self.save_dir = Path(args.project) / 'exp'
         self.save_dir = self.__increment_path()
 
@@ -67,7 +74,7 @@ class Logger:
     def __increment_path(self, mkdir=True):
         """
         :function:
-            Increment file or directory path, i.e. runs/exp --> runs/exp2, ... etc.
+            Increment file or directory path, i.e. runs/exp2 --> runs/exp2, ... etc.
         :param mkdir:
         :return:
         """
@@ -85,7 +92,34 @@ class Logger:
 
     def plot_val_img(self, im, targets, outputs, paths, i_batch, names):
         plot_images(im, targets, paths, self.save_dir / f'val_batch{i_batch}_labels.jpg', names)
-        plot_images(im, output_to_target(outputs), paths,
+        outp = output_to_target(outputs)
+        # for itm in outp[:4]:
+        #     print(itm)
+        outp = sorted(outp, key=lambda x: x[2])
+        outp = sorted(outp, key=lambda x: x[0])
+        # for itm in outp:
+        #     print(itm)
+        if self.args.data.split('/')[-1] == 'music_line.yaml':
+            xp = 3
+            thr = 40
+            # print('AAAAAAAAAA')
+        elif self.args.data.split('/')[-1] == 'rows.yaml':
+            xp = 2
+            thr = 8
+            # print('BBBBBBBB')
+        else:
+            raise Exception(f'No sunch type {self.args.data.split("/")[-1]}')
+        outp = reduce_rep(outp, xp=xp, confp=-1, thr=thr)
+        # for itm in outp:
+        #     print(itm)
+        # print()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            outp = np.array([otp for otp in outp if otp != '##'])
+        # for itm in outp[:4]:
+        #     print(itm)
+        # exit(0)
+        plot_images(im, outp, paths,
                     self.save_dir / f'val_batch{i_batch}_preds.jpg', names)
 
     def record(self, fitness):

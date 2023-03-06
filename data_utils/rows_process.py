@@ -71,7 +71,7 @@ def crop_line_detect(img_path: str, txt_dir: str, save_dir: str):
         for j, (labelconf, box) in enumerate(ms_lines):
             img_crop = ms_img.crop(box)
             cls = ms_classes[labelconf.split()[0]]
-            crop_name = save_dir / f'{mi_path.name.split(".")[0]}_{cls}_{j}.jpg'
+            crop_name = save_dir / f'{mi_path.name.split(".")[0]}_{cls}_{j}.{mi_path.name.split(".")[-1]}'
             img_crop.save(str(crop_name))
 
 
@@ -85,10 +85,13 @@ def crop_lines(ms_path: str, save_dir: str):
     """
     ms_path = Path(ms_path)
     save_dir = Path(save_dir)
-    ms_img_paths = glob.glob(str(ms_path / '**' / '*.*'), recursive=True)
-    # 确保标签文件夹和img文件夹对齐
-    ms_img_paths = sorted(x for x in ms_img_paths
-                          if x.split('.')[-1].lower() in ['png', 'jpg'])
+    if ms_path.is_file():
+        ms_img_paths = [str(ms_path)]
+    elif ms_path.is_dir():
+        ms_img_paths = glob.glob(str(ms_path / '**' / '*.*'), recursive=True)
+        # 确保标签文件夹和img文件夹对齐
+        ms_img_paths = sorted(x for x in ms_img_paths
+                              if x.split('.')[-1].lower() in ['png', 'jpg'])
 
     ms_anno_paths = sorted(img2label_paths(ms_img_paths))
 
@@ -112,9 +115,9 @@ def crop_lines(ms_path: str, save_dir: str):
 
 
 if __name__ == '__main__':
-    # path = r'E:\Programs\Python_Programes\genshin_music_project\datasets\music_score\test\images'
-    # save_dir = r'E:\Programs\Python_Programes\genshin_music_project\datasets\rows\val\images'
-    # crop_lines(path, save_dir)
+    path = r'E:\Programs\Python_Programes\genshin_music_project\datasets\music_score\train\images\sincerely1.jpg'
+    save_dir = r'E:\Programs\Python_Programes\genshin_music_project\datasets\rows\train\part'
+    crop_lines(path, save_dir)
 
     # img_path = r'E:\Programs\Python_Programes\genshin_music_project\datasets\music_score\train\images\人民江山.png'
     # box = (0, 0, 200, 500)
@@ -122,6 +125,6 @@ if __name__ == '__main__':
     # a = ms_img.crop(box)
     # ms_img.show()
     # a.show()
-    pt = '../runs/detect/exp3/ms'
+    pt = '../runs/detect/exp2/ms'
 
 

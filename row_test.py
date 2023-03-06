@@ -12,10 +12,13 @@ from argument_creater import TestArgCreater
 from models.yolo import Model
 from logger import Logger
 from data_utils.dataloader_creater import LoadImages, Path
-from data_utils.key_map import xlabel2keys
+from data_utils.key_map import xlabel2keys, reduce_rep
 
+import numpy as np
 import yaml
 import torch
+import warnings
+import cv2
 
 
 class RowTester:
@@ -48,16 +51,24 @@ class RowTester:
         # dataset init
         gs = 32
         self.imgsz = check_img_size(self.imgsz, gs, floor=gs * 2)  # verify imgsz is gs-multiple
-        self.test_set = LoadImages(self.test_source, self.imgsz)
+        self.test_set = LoadImages(self.test_source, self.imgsz, mode='row')
 
     @torch.no_grad()
     def test(self):
         self.yolov5.eval()
 
-        for im, im0s, path in self.test_set:
+        for ij, (im, im0s, path) in enumerate(self.test_set):
             im = im.to(self.device).float() / 255.
             if len(im.shape) == 3:
                 im = im.unsqueeze(0)
+
+            # if ij == 4:
+            #     im = im[0].to('cpu').numpy()
+            #     im = im.transpose(1, 2, 0)
+            #     print(im.shape)
+            #     cv2.imshow('1', im)
+            #     cv2.waitKey(0)
+            #     exit(0)
 
             # Inference
             preds, _ = self.yolov5(im)
@@ -65,7 +76,7 @@ class RowTester:
             #NMS
             preds = non_max_suppression(preds, self.conf_thres, self.iou_thres)
             p, im0 = Path(path), im0s.numpy().copy()
-            annotator = Annotator(im0, line_width=1, font_size=1, example=str(self.class_names))
+            annotator = Annotator(im0, line_width=1, font_size=10, example=str(self.class_names))
             pred_list = []
             for i, det in enumerate(preds):
                 if len(det):
@@ -73,11 +84,18 @@ class RowTester:
                     # det--> [ boxes, confidence, classes]
                     det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
 
+                    det = det.tolist()
+                    det = sorted(det, key=lambda x: x[0])
+                    det = reduce_rep(det, xp=0, confp=-2, thr=8)
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        det = np.array([otp for otp in det if otp != '##'])
+
                     for *xyxy, conf, cls in det:
                         c = int(cls) # turn tensor float item into int
                         label = f'{self.class_names[c]} {conf:.2f}'
-                        pred_list.append([xyxy[0].item(), label])
-                        annotator.box_label(xyxy, color=colors(c, True))
+                        pred_list.append([xyxy[0], label])
+                        annotator.box_label(xyxy, label, color=colors(c, True))
             im0 = annotator.result()
             self.gmp_logger.save_img(im0, p.name, suffix='row')
             self.gmp_logger.save_preds(p.name, pred_list, suffix='row')

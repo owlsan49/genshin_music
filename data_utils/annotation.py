@@ -61,7 +61,7 @@ def json_to_yolov5_labels(src_dir, classes_to_label):
 
 
 if __name__ == '__main__':
-    # path = r'E:\Programs\Python_Programes\genshin_music_project\datasets\music_score\test\images'
+    # path = r'E:\Programs\Python_Programes\genshin_music_project\datasets\music_score\val\images'
     # ms_class2label = {'melody_rhythm': '0', 'syllable_lines': '1'}
     # json_to_yolov5_labels(path, ms_class2label)
 
