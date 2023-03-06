@@ -125,9 +125,6 @@ def play_music(music, time_interval):
             play_note(y, time_div, time_div_div, time_interval)
 
 
-test = ' H- H--- G- H- H--- G- / H- H- G- ---- Q--- / H--- H--- G- H- H--- G- / H--- Q--- W--- E--- / W- W--- E- E--- -- D- / E- E- W- Q- E--- H- Q- / W- W- E- E--- E- E- / E- E- W- W- Q--- H- Q- / W- W--- E- E--- -- E- / E- E- W- Q- E--- H- Q- / W--- E--- W--- Q--- / Q- W- G- G- H--- H- / / W- W--- E- E--- -- E- / W- H- W- Q- E--- H- Q- / W- W- E- E--- E- E- / E- E- W- Q- Q--- H- / / W- W--- E- E--- -- E- / H- W- Q- E--- H- Q- / W--- E--- W--- Q--- / W- Q- E- G H--- ---- / S- D- N N N S- D- D N N / S- D- N N N A- M- N- B- / S- D- N N N S- D- D- N / / S- D- Q- Q- J Q H G- D- / S- D- H G N G S- D- N N G / D- D- H N G A- M- N- B- / A- A S- A S D- S S G G Q D G / Q- J- H- G- H--- H- Q- / / W- E- H G G G W E- H G H G G / W- W- E- H H G G G Q- J- H- G- / W- E- H H G Q- E- H G G / W- E- Q- Q- Q Q H E- / W- E- H G G H G G W- E- H G G W- / W- E- H G G H G G Q- J- H- G- / E- W G H W H- Q- E- / H- E--- E- E--- ---- / H--- H- G H- Q- W- / / H--- H- G H- G- D- G- / H--- H- - H- H- Q- Q- W- E- / E--- W--- Q--- H--- / H--- - - G H- Q- W- E- / H--- H- - G H- G- G- D- / H--- H- - G G- H- W- W- / E--- W--- Q--- H--- / Q--- J--- ---- G--- / G- G H D- D- S- D--- ---- / D- G- H- W--- J--- / Q--- G- G- H--- ---- / Q--- J--- H--- G--- / G- G D- D- S- D--- D- G- / H--- H--- H- Q--- W--- / J--- ---- ---- H- Q- /'
-
-
 def is_admin():
     try:
         print("Is administration ?")
@@ -146,7 +143,6 @@ def play(speed=1.25, txt=None):
         # 将要运行的代码加到这里hd
 
         time.sleep(2)
-        play_music(txt, 1.25)
         play_music(txt, speed)
     else:
         print("No permission!")
@@ -155,7 +151,8 @@ def play(speed=1.25, txt=None):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument('--txt', type=str, default='runs/detect/exp3/千本樱')
+    parser.add_argument('--txt', type=str, default=' H- H--- G- H- H--- G- / H- H--- G- H--- Q--- / H- H--- G- H- H--- G- / H--- Q--- W--- E--- / S- D- N B N B S- D- N B N B / S- D- N B N B A- M- N- B- / S- D- N B N B S- D- N B B B / S- D- G- Q- J Q J H G- D- S- D- N B N B S- D- N B N B / S- D- N B N B A- M- N- B- / A- N A S- A S D- S D G Q D G / Q- J- H- G- H--- H- Q- / W- E- H G H G W- E- H G H G / W- E- H G H G Q- J- H- G- / W- E- H G H G W- E- H G H G / W- E- T- Q- J Q Y Y T- E- / W- E- H G H G W- E- H G H G / W- E- H G H G Q- J- H- G- / E E T Y T E E H- Q- E- T- / Y- Y--- T- Y--- ---- / H--- H- - G H- Q- W- E- / H--- H- - G H- G- D- G- / H--- H- - G H- Q- W- E- / E--- W--- Q--- H--- / H--- H- - G H- Q- W- E- / H--- H- - G H- G- G- D- / H--- H- - G G- H- Q- W- / E--- W--- Q--- H--- / Q--- J--- H--- G--- / G- G G D- S- D--- ---- / D- G- H--- W--- J--- / Q--- J- G- H--- ---- / Q--- J--- H--- G--- / G- G G D- S- D--- D- G- / H- H--- H- Q--- W--- / J--- ---- ---- H- Q- W- W--- E- E--- -- E- / T- Y- W- Q- E--- H- Q- / W- W--- E- E--- E- E- / F- E- W- Q- Q--- H- Q- / W- W--- E- E--- -- E- / T- Y- W- Q- E--- H- Q- / F--- E--- W--- Q--- / Q- W- J- G- H--- H- Q- / W- W--- E- E--- -- E- / T- Y- W- Q- E--- H- Q- / W- W--- E- E--- E- E- / E- E- W- Q- Q- Q--- H- Q- / W--- E- E--- -- E- / T- Y- W- Q- E--- H- Q- / E--- E--- W--- Q--- / W- Q- E- T- Y--- ---- /')
+
     parser.add_argument('--speed', type=float, default=1.25)
     args = parser.parse_args()
     play(args.speed, args.txt)

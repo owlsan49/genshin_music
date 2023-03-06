@@ -22,6 +22,10 @@ python full_detect.py --source datasets/千本樱.png --ms-wgt models/weights/ms
 
 --source是简谱图片源或包含多个原图片的文件夹
 
+当前版本不会检测调号，可以在full_detect.py文件中设置调号，如果不设置会默认是C调
+![img.png](readme/img.png)
+
+
 *键值映射结果在runs/detect/exp?/下：*
 
 ![image-20230225194818744](readme/image-20230225194818744.png)
@@ -49,6 +53,8 @@ python yuan_modified.py --txt runs/detect/exp/千本樱
 或者修改yuan_modified.py的__main__进程中直接修改--txt的default值就，就可以直接运行。
 
 确认权限后，调换到原神游戏界面就会自动演奏
+
+注：当前版本无法识别和弦，但是可以检测，要添加和弦需要手动修改键值
 
 <br>
 
@@ -96,3 +102,7 @@ yolov5x.pt的预训练模型在这里下载[github.com](https://github.com/ultra
 
 '_hx'表示附点音符，'\_hx2'表示附点八分音符，'\_l'表示小节线，其他的以此类推。
 
+### 错误
+#### 1.IndexError: list index out of range
+![img.png](readme/img2.png)
+乐谱里面的音太高，原神的琴弹不了，建议降调
